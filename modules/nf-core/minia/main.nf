@@ -11,9 +11,10 @@ process MINIA {
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path("${meta.id}.contigs.fa"), emit: contigs
-    tuple val(meta), path("${meta.id}.unitigs.fa"), emit: unitigs
-    tuple val(meta), path("${meta.id}.h5")        , emit: h5
+
+    tuple val(meta), path('*.contigs.fa'), emit: contigs
+    tuple val(meta), path('*.unitigs.fa'), emit: unitigs
+    tuple val(meta), path('*.h5')        , emit: h5
     path  "versions.yml"                 , emit: versions
 
     when:
@@ -39,10 +40,12 @@ process MINIA {
     """
 
     stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${meta.id}.contigs.fa
-    touch ${meta.id}.unitigs.fa
-    touch ${meta.id}.h5
+
+    touch ${prefix}.contigs.fa
+    touch ${prefix}.unitigs.fa
+    touch ${prefix}.h5
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
