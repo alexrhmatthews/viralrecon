@@ -2,10 +2,10 @@ process MINIA {
     tag "$meta.id"
     label 'process_high'
 
-    conda "bioconda::minia=3.2.6"
+    conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/minia:3.2.6--h9a82719_0' :
-        'quay.io/biocontainers/minia:3.2.6--h9a82719_0' }"
+        'biocontainers/minia:3.2.6--h9a82719_0' }"
 
     input:
     tuple val(meta), path(reads)
@@ -49,6 +49,7 @@ process MINIA {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
+    
     minia: \$(echo \$(minia --version 2>&1 | grep Minia) | sed 's/^.*Minia version //;')
     END_VERSIONS
     """
