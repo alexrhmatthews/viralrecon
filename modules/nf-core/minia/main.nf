@@ -11,9 +11,9 @@ process MINIA {
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path('*.contigs.fa'), emit: contigs
-    tuple val(meta), path('*.unitigs.fa'), emit: unitigs
-    tuple val(meta), path('*.h5')        , emit: h5
+    tuple val(meta), path("${meta.id}.contigs.fa"), emit: contigs
+    tuple val(meta), path("${meta.id}.unitigs.fa"), emit: unitigs
+    tuple val(meta), path("${meta.id}.h5")        , emit: h5
     path  "versions.yml"                 , emit: versions
 
     when:
@@ -23,19 +23,31 @@ process MINIA {
     def args = task.ext.args ?: ''
     args = args =~ /-nb-cores\s+(\S+)/ ?: "{$args} -nb-cores {$task.cpus}"
 
-    def prefix = task.ext.prefix ?: "${meta.id}"
     def read_list = reads.join(",")\
 
-        """
-        echo "${read_list}" | sed 's/,/\\n/g' > input_files.txt
-        minia \\
-            $args \\
-            -in input_files.txt \\
-            -out $prefix
+    """
+    echo "${read_list}" | sed 's/,/\\n/g' > input_files.txt
+    minia \\
+        $args \\
+        -in input_files.txt \\
+        -out ${meta.id}
 
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            minia: \$(echo \$(minia --version 2>&1 | grep Minia) | sed 's/^.*Minia version //;')
-        END_VERSIONS
-        """
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        minia: \$(echo \$(minia --version 2>&1 | grep Minia) | sed 's/^.*Minia version //;')
+    END_VERSIONS
+    """
+
+    stub:
+    """
+    touch ${meta.id}.contigs.fa
+    touch ${meta.id}.unitigs.fa
+    touch ${meta.id}.h5
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+    minia: \$(echo \$(minia --version 2>&1 | grep Minia) | sed 's/^.*Minia version //;')
+    END_VERSIONS
+    """
+    
 }
