@@ -11,7 +11,7 @@ process MINIA {
     tuple val(meta), path(reads)
 
     output:
-
+    
     tuple val(meta), path('*.contigs.fa'), emit: contigs
     tuple val(meta), path('*.unitigs.fa'), emit: unitigs
     tuple val(meta), path('*.h5')        , emit: h5
@@ -22,7 +22,7 @@ process MINIA {
 
     script:
     def args = task.ext.args ?: ''
-    args = args =~ /-nb-cores\s+(\S+)/ ?: "{$args} -nb-cores {$task.cpus}"
+    args = args =~ /-nb-cores\s+(\S+)/ ?: "${args} -nb-cores ${task.cpus} "
 
     def read_list = reads.join(",")\
 
