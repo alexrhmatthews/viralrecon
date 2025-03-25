@@ -10,6 +10,7 @@ tools:
       homepage: https://github.com/GATB/minia
       documentation: https://github.com/GATB/minia
       licence: ["AGPL-3.0-or-later"]
+      args_id: "$args"
 input:
   - meta:
       type: map
