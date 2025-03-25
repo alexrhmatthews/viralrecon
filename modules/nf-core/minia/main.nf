@@ -21,19 +21,21 @@ process MINIA {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    def read_list = reads.join(",")
-    """
-    echo "${read_list}" | sed 's/,/\\n/g' > input_files.txt
-    minia \\
-        $args \\
-        -nb-cores $task.cpus \\
-        -in input_files.txt \\
-        -out $prefix
+    args = args =~ /-nb-cores\s+(\S+)/ ?: "{$args} -nb-cores {$task.cpus}"
 
-    cat <<-END_VERSIONS > versions.yml
-    "${task.process}":
-        minia: \$(echo \$(minia --version 2>&1 | grep Minia) | sed 's/^.*Minia version //;')
-    END_VERSIONS
-    """
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    def read_list = reads.join(",")\
+
+        """
+        echo "${read_list}" | sed 's/,/\\n/g' > input_files.txt
+        minia \\
+            $args \\
+            -in input_files.txt \\
+            -out $prefix
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            minia: \$(echo \$(minia --version 2>&1 | grep Minia) | sed 's/^.*Minia version //;')
+        END_VERSIONS
+        """
 }
